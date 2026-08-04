@@ -16,10 +16,16 @@ describe("native skill loaders", () => {
     }
   })
 
-  test("register only the canonical skills path", async () => {
+  test("preserves OpenCode config while registering the canonical skills path once", async () => {
     const openCodeModule = await import(pathToFileURL(path.join(root, loaderFiles[0])).href)
     const openCode = await openCodeModule.default()
-    const openCodeConfig: { skills?: { paths?: string[] } } = {}
+    const existingSkillsDir = "/opt/existing-skills"
+    const honeySkillsDir = path.join(root, "skills")
+    const openCodeConfig = {
+      formatter: { enabled: true },
+      skills: { paths: [existingSkillsDir] },
+    }
+    await openCode.config(openCodeConfig)
     await openCode.config(openCodeConfig)
 
     let discover: (() => Promise<{ skillPaths: string[] }>) | undefined
@@ -31,7 +37,9 @@ describe("native skill loaders", () => {
       },
     })
 
-    expect(openCodeConfig.skills?.paths).toEqual([path.join(root, "skills")])
-    expect(await discover?.()).toEqual({ skillPaths: [path.join(root, "skills")] })
+    expect(openCodeConfig.formatter).toEqual({ enabled: true })
+    expect(openCodeConfig.skills.paths).toEqual([existingSkillsDir, honeySkillsDir])
+    expect(openCodeConfig.skills.paths.filter((skillsDir) => skillsDir === honeySkillsDir)).toHaveLength(1)
+    expect(await discover?.()).toEqual({ skillPaths: [honeySkillsDir] })
   })
 })
