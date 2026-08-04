@@ -4,6 +4,16 @@ import yaml from "js-yaml"
 import path from "node:path"
 
 const root = path.resolve(import.meta.dir, "..")
+const canonicalKnowledgeProblemTypes = [
+  "best_practice",
+  "documentation_gap",
+  "workflow_issue",
+  "developer_experience",
+  "architecture_pattern",
+  "design_pattern",
+  "tooling_decision",
+  "convention"
+]
 
 async function exists(relativePath: string): Promise<boolean> {
   try {
@@ -89,10 +99,8 @@ describe("vendored Compound skills", () => {
 
     expect(compound).toContain("docs/solutions/")
     expect(compound).not.toContain("docs/decisions/")
-    expect(knowledgeProblemTypes(compoundSchema)).toEqual(
-      expect.arrayContaining(["tooling_decision", "architecture_pattern"])
-    )
-    expect(knowledgeProblemTypes(refreshSchema)).toEqual(knowledgeProblemTypes(compoundSchema))
+    expect(knowledgeProblemTypes(compoundSchema)).toEqual(canonicalKnowledgeProblemTypes)
+    expect(knowledgeProblemTypes(refreshSchema)).toEqual(canonicalKnowledgeProblemTypes)
     expect(refreshSchema).toBe(compoundSchema)
     expect(refresh).toContain("status: stale")
     expect(refresh).toContain("stale_reason")
