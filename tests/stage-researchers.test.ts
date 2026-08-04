@@ -62,12 +62,14 @@ describe("stage-owned learnings researchers", () => {
       expect(skill).toContain("up to five distilled findings")
       expect(skill).toContain("path, relevance, applicable insight, and conflict/freshness warning")
       expect(skill).toMatch(/full\s+`docs\/solutions\/` corpus/)
-      expect(skill.indexOf("Consume the returned findings"), stage).toBeGreaterThan(
-        skill.indexOf("Dispatch a generic subagent")
-      )
-      expect(skill.indexOf(outputMarkers[stage]), stage).toBeGreaterThan(
-        skill.indexOf("Consume the returned findings")
-      )
+      const dispatchIndex = skill.indexOf("Dispatch a generic subagent")
+      const consumeIndex = skill.indexOf("Consume the returned findings")
+      const outputIndex = skill.indexOf(outputMarkers[stage])
+      expect(dispatchIndex, `${stage} dispatch marker`).toBeGreaterThanOrEqual(0)
+      expect(consumeIndex, `${stage} consume marker`).toBeGreaterThanOrEqual(0)
+      expect(outputIndex, `${stage} output marker`).toBeGreaterThanOrEqual(0)
+      expect(consumeIndex, stage).toBeGreaterThan(dispatchIndex)
+      expect(outputIndex, stage).toBeGreaterThan(consumeIndex)
     }
   })
 

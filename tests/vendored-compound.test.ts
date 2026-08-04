@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test"
 import { readFile, stat } from "node:fs/promises"
+import yaml from "js-yaml"
 import path from "node:path"
 
 const root = path.resolve(import.meta.dir, "..")
@@ -11,6 +12,13 @@ async function exists(relativePath: string): Promise<boolean> {
   } catch {
     return false
   }
+}
+
+function knowledgeProblemTypes(schemaText: string): unknown[] {
+  const schema = yaml.load(schemaText) as { tracks?: { knowledge?: { problem_types?: unknown } } }
+  const problemTypes = schema.tracks?.knowledge?.problem_types
+  if (!Array.isArray(problemTypes)) throw new Error("knowledge-track problem_types must be an array")
+  return problemTypes
 }
 
 describe("vendored Compound skills", () => {
@@ -81,13 +89,21 @@ describe("vendored Compound skills", () => {
 
     expect(compound).toContain("docs/solutions/")
     expect(compound).not.toContain("docs/decisions/")
-    expect(compoundSchema).toContain("tooling_decision")
-    expect(compoundSchema).toContain("architecture_pattern")
+    expect(knowledgeProblemTypes(compoundSchema)).toEqual(
+      expect.arrayContaining(["tooling_decision", "architecture_pattern"])
+    )
+    expect(knowledgeProblemTypes(refreshSchema)).toEqual(knowledgeProblemTypes(compoundSchema))
     expect(refreshSchema).toBe(compoundSchema)
     expect(refresh).toContain("status: stale")
     expect(refresh).toContain("stale_reason")
     expect(refresh).toContain("stale_date")
     expect(refresh).toContain("Delete, don't archive")
+    expect(refresh).toMatch(
+      /If classification is genuinely ambiguous \(Update vs Replace vs Consolidate vs Delete\) or Replace evidence is insufficient, mark as stale with `status: stale`, `stale_reason`, and `stale_date` in the frontmatter\./
+    )
+    expect(refresh).toMatch(
+      /\*\*Insufficient evidence\*\*[\s\S]*?→ Mark as stale in place:[\s\S]*?`stale_reason: \[what you found\]`/
+    )
   })
 
   test("keeps docs enumeration fresh", async () => {
