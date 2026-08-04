@@ -22,4 +22,3 @@ Use a single-flight lock around refresh for each credential identity. The
 worker holding the lock refreshes and persists the rotated credential; other
 workers wait, then reuse the persisted result instead of making a competing
 refresh request.
-

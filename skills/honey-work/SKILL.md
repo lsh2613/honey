@@ -22,7 +22,13 @@ Before implementing the approved work:
 3. Dispatch a generic subagent with the complete local researcher prompt and the
    `<work-context>` block. Ask it to return only up to five distilled findings,
    each with path, exact source date, relevance, applicable insight, and conflict/freshness warning.
-4. Consume the returned findings before implementation. Carry applicable cautions,
+4. If generic subagent creation or dispatch is unavailable or fails, do not retry.
+   Instead, run one bounded local researcher pass in the parent context using the
+   same complete local researcher prompt from
+   `references/agents/learnings-researcher.md` and the same `<work-context>`.
+   Follow that prompt's instructions, including fresh `docs/solutions/` enumeration
+   and exact source-date reporting, and retain only up to five distilled findings.
+5. Consume the returned findings before implementation. Carry applicable cautions,
    affected modules and components, known failure modes, prevention checks, and
    regression risks into the implementation work.
 

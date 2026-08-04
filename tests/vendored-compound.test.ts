@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { readFile, stat } from "node:fs/promises"
+import { readdir, readFile, stat } from "node:fs/promises"
 import yaml from "js-yaml"
 import path from "node:path"
 
@@ -22,6 +22,18 @@ async function exists(relativePath: string): Promise<boolean> {
   } catch {
     return false
   }
+}
+
+async function findMarkdownFiles(directory: string): Promise<string[]> {
+  const entries = await readdir(directory, { withFileTypes: true })
+  const nested = await Promise.all(
+    entries.map(async (entry) => {
+      const entryPath = path.join(directory, entry.name)
+      if (entry.isDirectory()) return findMarkdownFiles(entryPath)
+      return entry.isFile() && entry.name.endsWith(".md") ? [entryPath] : []
+    })
+  )
+  return nested.flat()
 }
 
 function knowledgeProblemTypes(schemaText: string): unknown[] {
@@ -64,10 +76,27 @@ describe("vendored Compound skills", () => {
     ])
   })
 
-  test("uses portable skill-directory commands", async () => {
-    const skill = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
-    expect(skill).not.toContain("${CLAUDE_SKILL_DIR}")
-    expect(skill).toContain('SKILL_DIR="<absolute path of the directory containing the SKILL.md you just read>"')
+  test("uses portable skill-directory commands across load-bearing Markdown", async () => {
+    const markdownFiles = (
+      await Promise.all(
+        ["ce-compound", "ce-compound-refresh"].map((skill) =>
+          findMarkdownFiles(path.join(root, "skills", skill))
+        )
+      )
+    ).flat()
+
+    for (const file of markdownFiles) {
+      expect(await readFile(file, "utf8"), path.relative(root, file)).not.toContain("${CLAUDE_SKILL_DIR}")
+    }
+
+    const compound = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
+    const refreshFlows = await readFile(
+      path.join(root, "skills/ce-compound-refresh/references/per-action-flows.md"),
+      "utf8"
+    )
+    const portableAnchor = 'SKILL_DIR="<absolute path of the directory containing the SKILL.md you just read>"'
+    expect(compound).toContain(portableAnchor)
+    expect(refreshFlows).toContain(portableAnchor)
   })
 
   test("keeps English and Korean prompt-level auto-invoke examples", async () => {

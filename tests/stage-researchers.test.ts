@@ -77,6 +77,23 @@ describe("stage-owned learnings researchers", () => {
     }
   })
 
+  test("each stage has a bounded local fallback when generic subagent dispatch is unavailable", async () => {
+    for (const stage of stages) {
+      const skill = await readFile(path.join(root, "skills", stage, "SKILL.md"), "utf8")
+      const dispatchIndex = skill.indexOf("Dispatch a generic subagent")
+      const fallbackIndex = skill.indexOf("If generic subagent creation or dispatch is unavailable or fails")
+      const consumeIndex = skill.indexOf("Consume the returned findings")
+
+      expect(fallbackIndex, stage).toBeGreaterThan(dispatchIndex)
+      expect(consumeIndex, stage).toBeGreaterThan(fallbackIndex)
+      expect(skill).toContain("run one bounded local researcher pass in the parent context")
+      expect(skill).toContain("same complete local researcher prompt")
+      expect(skill).toContain("fresh `docs/solutions/` enumeration")
+      expect(skill).toContain("exact source-date reporting")
+      expect(skill).toContain("up to five distilled findings")
+    }
+  })
+
   test("does not introduce stage metadata or a central researcher", async () => {
     for (const stage of stages) {
       const content = await readFile(
