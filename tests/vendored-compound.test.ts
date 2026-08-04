@@ -69,4 +69,29 @@ describe("vendored Compound skills", () => {
     ]) expect(skill).toContain(phrase)
     expect(skill).not.toContain("deterministic success detector")
   })
+
+  test("preserves the settled solution-only knowledge model", async () => {
+    const compound = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
+    const compoundSchema = await readFile(path.join(root, "skills/ce-compound/references/schema.yaml"), "utf8")
+    const refresh = await readFile(path.join(root, "skills/ce-compound-refresh/SKILL.md"), "utf8")
+    const refreshSchema = await readFile(
+      path.join(root, "skills/ce-compound-refresh/references/schema.yaml"),
+      "utf8"
+    )
+
+    expect(compound).toContain("docs/solutions/")
+    expect(compound).not.toContain("docs/decisions/")
+    expect(compoundSchema).toContain("tooling_decision")
+    expect(compoundSchema).toContain("architecture_pattern")
+    expect(refreshSchema).toBe(compoundSchema)
+    expect(refresh).toContain("status: stale")
+    expect(refresh).toContain("stale_reason")
+    expect(refresh).toContain("stale_date")
+    expect(refresh).toContain("Delete, don't archive")
+  })
+
+  test("keeps docs enumeration fresh", async () => {
+    const compound = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
+    expect(compound).toContain("docs/solutions/` enumeration is NEVER cached")
+  })
 })
