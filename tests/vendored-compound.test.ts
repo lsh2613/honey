@@ -45,4 +45,28 @@ describe("vendored Compound skills", () => {
       "add-korean-compound-auto-invoke-examples"
     ])
   })
+
+  test("uses portable skill-directory commands", async () => {
+    const skill = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
+    expect(skill).not.toContain("${CLAUDE_SKILL_DIR}")
+    expect(skill).toContain('SKILL_DIR="<absolute path of the directory containing the SKILL.md you just read>"')
+  })
+
+  test("keeps English and Korean prompt-level auto-invoke examples", async () => {
+    const skill = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
+    for (const phrase of [
+      "that worked",
+      "it's fixed",
+      "working now",
+      "problem solved",
+      "잘 됐어",
+      "이제 잘 돼",
+      "고쳐졌어",
+      "수정됐어",
+      "해결됐어",
+      "문제 해결됐어",
+      "정상 동작해"
+    ]) expect(skill).toContain(phrase)
+    expect(skill).not.toContain("deterministic success detector")
+  })
 })
