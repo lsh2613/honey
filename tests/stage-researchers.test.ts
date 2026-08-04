@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { readFile } from "node:fs/promises"
 import path from "node:path"
+import { parseFrontmatter } from "./helpers/frontmatter"
 
 const root = path.resolve(import.meta.dir, "..")
 const stages = ["honey-plan", "honey-design", "honey-work"] as const
@@ -25,6 +26,9 @@ describe("stage-owned learnings researchers", () => {
       expect(skill).toContain("generic subagent")
       expect(researcher).toContain("docs/solutions/")
       expect(researcher).toContain("CONCEPTS.md")
+      expect(researcher).toContain("at invocation time")
+      expect(researcher).toContain("Probe the live `docs/solutions/` directory")
+      expect(researcher).toContain("native file-search/glob tool")
     }
   })
 
@@ -82,5 +86,37 @@ describe("stage-owned learnings researchers", () => {
       expect(content).not.toContain("use_in")
       expect(content).not.toContain("../honey-")
     }
+  })
+
+  test("keeps the retrieval fixture and evaluator rubric separate from forward prompts", async () => {
+    const evaluation = await readFile(path.join(root, "evals/stage-retrieval/README.md"), "utf8")
+    const fixture = await readFile(
+      path.join(root, "evals/stage-retrieval/docs/solutions/runtime-errors/token-refresh-race.md"),
+      "utf8"
+    )
+    const promptsStart = evaluation.indexOf("## Forward-Test Prompts")
+    const rubricStart = evaluation.indexOf("## Evaluator Rubric")
+    const prompts = evaluation.slice(promptsStart, rubricStart)
+    const rubric = evaluation.slice(rubricStart)
+    const { data, body } = parseFrontmatter(fixture)
+
+    expect(promptsStart).toBeGreaterThanOrEqual(0)
+    expect(rubricStart).toBeGreaterThan(promptsStart)
+    expect(prompts).not.toContain("docs/solutions/runtime-errors/token-refresh-race.md")
+    expect(prompts).not.toContain("Coordinate Concurrent Credential Renewal")
+    expect(prompts).not.toContain("single-flight lock")
+    expect(prompts).not.toContain("older renewal result")
+    expect(rubric).toContain("docs/solutions/runtime-errors/token-refresh-race.md")
+    expect(rubric).toContain("conflict/freshness")
+    expect(rubric).toContain("date")
+    expect(rubric).toContain("uncommitted")
+    expect(evaluation).toContain("git init")
+    expect(evaluation).toContain("git add README.md")
+    expect(data.module).toBe("authentication")
+    expect(data.component).toBe("background_job")
+    expect(data.problem_type).toBe("runtime_error")
+    expect(data.tags).toEqual(["oauth", "token-refresh", "concurrency"])
+    expect(body).toContain("Concurrent background refresh workers")
+    expect(body).toContain("single-flight lock")
   })
 })

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { readFile } from "node:fs/promises"
+import { readFile, realpath } from "node:fs/promises"
 import path, { dirname, resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 
@@ -7,6 +7,29 @@ const root = path.resolve(import.meta.dir, "..")
 const loaderFiles = [".opencode/plugins/honey.js", ".pi/extensions/honey.ts"]
 
 describe("native skill loaders", () => {
+  test("documents native installation, development, provenance, and graceful degradation", async () => {
+    const readme = await readFile(path.join(root, "README.md"), "utf8")
+    const gitignore = await readFile(path.join(root, ".gitignore"), "utf8")
+
+    for (const section of [
+      "## Claude Code",
+      "## Codex",
+      "## OpenCode",
+      "## Pi",
+      "## Local Development",
+      "## Validation",
+      "## Vendored Provenance",
+      "## Graceful Degradation",
+    ]) {
+      expect(readme).toContain(section)
+    }
+    expect(readme).toContain("Auto-invoke is an LLM instruction, not a deterministic hook")
+    expect(readme).toContain("targeted by default")
+    expect(readme).toContain("vendor/compound-engineering.lock.json")
+    expect(readme).toContain("THIRD_PARTY_NOTICES.md")
+    expect(gitignore.trim()).toBe("node_modules/")
+  })
+
   test("resolve only the canonical skills directory at runtime", async () => {
     for (const relative of loaderFiles) {
       const source = await readFile(path.join(root, relative), "utf8")
@@ -14,6 +37,10 @@ describe("native skill loaders", () => {
       expect(source).not.toContain("compatibility")
       expect(resolve(dirname(path.join(root, relative)), "../..", "skills")).toBe(path.join(root, "skills"))
     }
+  })
+
+  test("keeps the Antigravity compatibility entry pointed at canonical skills", async () => {
+    expect(await realpath(path.join(root, ".agy", "skills"))).toBe(path.join(root, "skills"))
   })
 
   test("preserves OpenCode config while registering the canonical skills path once", async () => {
