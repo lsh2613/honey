@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/EveryInc/compound-engineering-plugin",
+  "commit": "c9e9d6292211256d3e9279b2abe54c6c1fcef08e",
+  "sourceDirectories": ["skills/ce-compound", "skills/ce-compound-refresh"],
+  "copiedOn": "2026-08-04",
+  "skills": ["ce-compound", "ce-compound-refresh"],
+  "patches": [
+    "replace-claude-skill-dir-with-portable-skill-dir",
+    "add-korean-compound-auto-invoke-examples"
+  ],
+  "updatePolicy": "manual-review-only"
+}
