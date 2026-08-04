@@ -1,13 +1,13 @@
 ---
-name: honey-plan
-description: Create a requirements plan with repository-grounded prior learnings.
+name: honey-design
+description: Create a technical design with repository-grounded prior learnings.
 ---
 
-# Honey Plan
+# Honey Design
 
-Before creating the requirements plan:
+Before creating the technical design:
 
-1. Construct a stage-owned input from the current planning context:
+1. Construct a stage-owned input from the current design context:
 
    ```xml
    <work-context>
@@ -22,12 +22,12 @@ Before creating the requirements plan:
 3. Dispatch a generic subagent with the complete local researcher prompt and the
    `<work-context>` block. Ask it to return only up to five distilled findings,
    each with path, relevance, applicable insight, and conflict/freshness warning.
-4. Consume the returned findings before writing the plan. Carry applicable
-   requirements constraints, prior decisions, failed approaches, and product or
-   workflow risks into the requirements artifact.
+4. Consume the returned findings before writing the design. Carry applicable
+   architecture constraints, patterns, tooling decisions, conventions, and rejected
+   technical approaches into the design artifact.
 
 Keep the solution corpus in the researcher context. Do not load or return the full
 `docs/solutions/` corpus in the parent context.
 
-Produce the requirements plan from the current stage context and the distilled
+Produce the technical design from the current stage context and the distilled
 findings.
