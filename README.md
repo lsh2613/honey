@@ -63,6 +63,7 @@ checkout with:
 /plugins install /path/to/honey
 ```
 
+Kimi command is upstream documented and was not smoke-tested in this environment.
 Restart or reload Kimi after installation.
 
 ## Antigravity
@@ -75,8 +76,8 @@ agy plugin install "$PWD/.agy"
 agy plugin validate "$PWD/.agy"
 ```
 
-The validation command is safe to use for a local smoke check; installation is
-an explicit user action and is not performed by Honey's automated tests.
+Antigravity validate command was empirically passed for `$PWD/.agy`.
+Antigravity install command is upstream documented and was not locally executed.
 
 ## OpenCode
 
@@ -100,6 +101,8 @@ local checkout with:
 ```bash
 pi -e "$PWD"
 ```
+
+Pi command is upstream documented and was not smoke-tested in this environment.
 
 ## Knowledge Workflow
 

@@ -33,6 +33,10 @@ describe("native skill loaders", () => {
     expect(readme).not.toContain('agy plugin validate "$PWD"\n')
     expect(readme).toContain('codex plugin marketplace add "$PWD"')
     expect(readme).toContain("codex plugin add honey@honey")
+    expect(readme).toContain("Kimi command is upstream documented and was not smoke-tested in this environment.")
+    expect(readme).toContain("Pi command is upstream documented and was not smoke-tested in this environment.")
+    expect(readme).toContain("Antigravity validate command was empirically passed for `$PWD/.agy`.")
+    expect(readme).toContain("Antigravity install command is upstream documented and was not locally executed.")
     expect(gitignore.trim()).toBe("node_modules/")
   })
 

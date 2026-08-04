@@ -15,8 +15,17 @@ git add README.md
 git commit -m "test: create evaluation baseline"
 ```
 
-Confirm with `git status --short` that the fixture under `docs/solutions/` is
-untracked before each forward test. Never add that file to the index.
+## Pre-Run Git Evidence
+
+Immediately before every stage run, capture both commands and confirm that the
+fixture is untracked and absent from the index:
+
+```bash
+git status --short
+git ls-files docs/solutions
+```
+
+Never add the fixture to the index.
 
 For each run, load the current stage `SKILL.md` and its local
 `references/agents/learnings-researcher.md` from the Honey checkout. Give the
@@ -75,8 +84,8 @@ once.
 <work-context>
 Activity: Implement a safe account-scoped renewal path for requests initiated
 by duplicate queue deliveries.
-Concepts: OAuth, credential rotation, concurrent execution, stale writes,
-coordination.
+Concepts: OAuth, credential rotation, concurrent execution, overlapping
+credential persistence, coordination.
 Decisions: Apply the smallest safe change that preserves account access when
 duplicate deliveries overlap.
 Domains: code-implementation, runtime reliability
@@ -84,6 +93,16 @@ Domains: code-implementation, runtime reliability
 
 Return the researcher findings before implementation and use any applicable
 cautions while making the change.
+
+## Post-Run Git Evidence
+
+Immediately after every stage run, capture both commands again. Confirm that
+the fixture remains untracked and absent from the index:
+
+```bash
+git status --short
+git ls-files docs/solutions
+```
 
 ## Evaluator Rubric (Do Not Pass to the Test Agent)
 
@@ -94,14 +113,16 @@ For each stage, mark the run passing only when all of the following are true:
    repository.
 2. The cited finding is relevant to concurrent OAuth credential renewal, not a
    filename-only match.
-3. The finding includes the fixture's date and an explicit conflict/freshness
-   assessment or warning. A valid assessment may say that no conflict was
-   observed after checking current evidence, but it must make the freshness
-   judgment visible instead of silently treating the learning as current.
-4. The agent ran the stage's local researcher before producing the stage
+3. The returned finding records the exact source date: `2026-08-04`.
+4. The returned finding separately includes a visible conflict/freshness assessment.
+   A valid assessment may say that no conflict was observed after
+   checking current evidence, but it must make the freshness judgment visible
+   instead of silently treating the learning as current.
+5. The agent ran the stage's local researcher before producing the stage
    artifact and used the finding in that artifact.
-5. The fixture remained uncommitted for the entire run, demonstrating live
-   `docs/solutions/` enumeration rather than Git-index lookup.
+6. The fixture remained uncommitted for the entire run: the captured pre-run
+   and post-run `git status --short` and `git ls-files docs/solutions` outputs
+   demonstrate live `docs/solutions/` enumeration rather than Git-index lookup.
 
 Record each stage's pass/fail result, the returned citation, and the exact
 conflict/freshness/date wording in the eval workflow scratch output. Do not
