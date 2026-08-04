@@ -27,4 +27,21 @@ describe("native plugin manifests", () => {
       expect(data.skills).toBe("./skills/")
     }
   })
+
+  test("lists the root Honey plugin in the native Codex marketplace", async () => {
+    const marketplace = JSON.parse(
+      await readFile(path.join(root, ".agents/plugins/marketplace.json"), "utf8")
+    )
+    expect(marketplace.name).toBe("honey")
+    expect(marketplace.interface).toEqual({ displayName: "Honey" })
+    expect(marketplace.plugins).toEqual([
+      {
+        name: "honey",
+        source: { source: "local", path: "." },
+        policy: { installation: "AVAILABLE", authentication: "ON_INSTALL" },
+        category: "Coding",
+      },
+    ])
+    expect(path.resolve(root, marketplace.plugins[0].source.path)).toBe(root)
+  })
 })

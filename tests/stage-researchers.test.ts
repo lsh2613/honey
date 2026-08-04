@@ -64,7 +64,7 @@ describe("stage-owned learnings researchers", () => {
       expect(skill).toContain("Decisions:")
       expect(skill).toContain("Domains:")
       expect(skill).toContain("up to five distilled findings")
-      expect(skill).toContain("path, relevance, applicable insight, and conflict/freshness warning")
+      expect(skill).toContain("path, exact source date, relevance, applicable insight, and conflict/freshness warning")
       expect(skill).toMatch(/full\s+`docs\/solutions\/` corpus/)
       const dispatchIndex = skill.indexOf("Dispatch a generic subagent")
       const consumeIndex = skill.indexOf("Consume the returned findings")

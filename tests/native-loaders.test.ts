@@ -27,6 +27,12 @@ describe("native skill loaders", () => {
     expect(readme).toContain("targeted by default")
     expect(readme).toContain("vendor/compound-engineering.lock.json")
     expect(readme).toContain("THIRD_PARTY_NOTICES.md")
+    expect(readme).toContain('agy plugin install "$PWD/.agy"')
+    expect(readme).toContain('agy plugin validate "$PWD/.agy"')
+    expect(readme).not.toContain('agy plugin install "$PWD"\n')
+    expect(readme).not.toContain('agy plugin validate "$PWD"\n')
+    expect(readme).toContain('codex plugin marketplace add "$PWD"')
+    expect(readme).toContain("codex plugin add honey@honey")
     expect(gitignore.trim()).toBe("node_modules/")
   })
 

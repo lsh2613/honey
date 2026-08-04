@@ -21,7 +21,7 @@ Before implementing the approved work:
 2. Read `references/agents/learnings-researcher.md` from this skill's directory.
 3. Dispatch a generic subagent with the complete local researcher prompt and the
    `<work-context>` block. Ask it to return only up to five distilled findings,
-   each with path, relevance, applicable insight, and conflict/freshness warning.
+   each with path, exact source date, relevance, applicable insight, and conflict/freshness warning.
 4. Consume the returned findings before implementation. Carry applicable cautions,
    affected modules and components, known failure modes, prevention checks, and
    regression risks into the implementation work.

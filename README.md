@@ -30,13 +30,22 @@ Start a new session after changing skill prose so the host reloads it.
 
 ## Codex
 
-Honey includes `.codex-plugin/plugin.json`, which points at the canonical
-`skills/` directory. In the Codex app, add the checkout with **Add plugin
-marketplace**, choose Honey, install it, and restart Codex. Use an isolated
-`CODEX_HOME` when testing locally so this does not change a normal profile.
-The local upstream documentation does not define a Honey-specific Codex CLI
-checkout command, so this README does not invent one. Honey's test suite does
-not install anything globally.
+Honey includes `.codex-plugin/plugin.json` and the native marketplace catalog
+at `.agents/plugins/marketplace.json`, both of which point at the canonical
+root `skills/` directory. Test a local checkout without changing a normal
+Codex profile:
+
+```bash
+HONEY_CODEX_HOME="$(mktemp -d -t honey-codex-XXXXXX)"
+CODEX_HOME="$HONEY_CODEX_HOME" codex plugin marketplace add "$PWD"
+CODEX_HOME="$HONEY_CODEX_HOME" codex plugin add honey@honey
+CODEX_HOME="$HONEY_CODEX_HOME" codex plugin list --available --json
+```
+
+The final command confirms that the isolated marketplace and Honey install are
+available; Codex loads the five root skills from Honey's `skills/` declaration.
+Remove the temporary `HONEY_CODEX_HOME` directory when the local test is
+complete.
 
 ## Cursor
 
@@ -58,12 +67,12 @@ Restart or reload Kimi after installation.
 
 ## Antigravity
 
-Honey includes `.agy/plugin.json`. With `agy` installed, use the checkout as
-the plugin package:
+Honey includes `.agy/plugin.json` and a symlink from `.agy/skills` to the
+canonical root skills directory. With `agy` installed, use that bundle entry:
 
 ```bash
-agy plugin install "$PWD"
-agy plugin validate "$PWD"
+agy plugin install "$PWD/.agy"
+agy plugin validate "$PWD/.agy"
 ```
 
 The validation command is safe to use for a local smoke check; installation is
