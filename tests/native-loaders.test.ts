@@ -6,14 +6,35 @@ import { pathToFileURL } from "node:url"
 const root = path.resolve(import.meta.dir, "..")
 const loaderFiles = [".opencode/plugins/honey.js", ".pi/extensions/honey.ts"]
 
+function withoutVendoredProvenance(readme: string) {
+  const sectionStart = readme.indexOf("\n## Vendored Provenance\n")
+  if (sectionStart === -1) return readme
+
+  const nextSection = readme.indexOf("\n## ", sectionStart + 1)
+  return `${readme.slice(0, sectionStart)}${nextSection === -1 ? "" : readme.slice(nextSection)}`
+}
+
 describe("native skill loaders", () => {
+  test("keeps deprecated identifiers after vendored provenance in active checks", () => {
+    const readme = [
+      "## Skills",
+      "## Vendored Provenance",
+      "upstream `ce-compound` and `ce-compound-refresh`",
+      "## Local Development",
+      "honey-plan",
+    ].join("\n")
+    const activeReadme = withoutVendoredProvenance(readme)
+
+    expect(activeReadme).toContain("honey-plan")
+  })
+
   test("documents only the prefix-free public skill names", async () => {
     const [readme, ...otherDocs] = await Promise.all([
       "README.md",
       "evals/stage-retrieval/README.md",
       "tests/fixtures/stage-retrieval-forward-prompts.md",
     ].map((relative) => readFile(path.join(root, relative), "utf8")))
-    const activeReadme = readme.split("\n## Vendored Provenance\n")[0]
+    const activeReadme = withoutVendoredProvenance(readme)
     const combined = [activeReadme, ...otherDocs].join("\n")
 
     for (const skill of ["`plan`", "`design`", "`work`", "`compound`", "`compound-refresh`"]) {
