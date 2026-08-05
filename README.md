@@ -6,11 +6,11 @@ and any subagent capability.
 
 ## Skills
 
-- `honey-plan` creates requirements plans.
-- `honey-design` creates technical designs.
-- `honey-work` implements approved work.
-- `ce-compound` captures one verified, reusable learning.
-- `ce-compound-refresh` maintains existing learnings.
+- `plan` creates requirements plans.
+- `design` creates technical designs.
+- `work` implements approved work.
+- `compound` captures one verified, reusable learning.
+- `compound-refresh` maintains existing learnings.
 
 The three Honey stages each own an independent researcher. Before producing
 their artifact, that researcher searches the live `docs/solutions/` tree in
@@ -106,12 +106,12 @@ Pi command is upstream documented and was not smoke-tested in this environment.
 
 ## Knowledge Workflow
 
-`ce-compound` remains manual or prompt-auto-invoked after a verified reusable
+`compound` remains manual or prompt-auto-invoked after a verified reusable
 success. Auto-invoke is an LLM instruction, not a deterministic hook: it can
 be suggested by the skill's prompt but Honey does not install a string matcher,
 hook, or background detector.
 
-`ce-compound-refresh` is targeted by default. Ask for a broad corpus refresh
+`compound-refresh` is targeted by default. Ask for a broad corpus refresh
 explicitly; routine capture work should refresh only the directly related
 learnings.
 
@@ -125,9 +125,9 @@ not block the core work of creating or maintaining a learning document.
 
 ## Vendored Provenance
 
-`ce-compound` and `ce-compound-refresh` are modified upstream copies. Their
-source commit, copied directories, allowed patches, and manual-review update
-policy are recorded in
+`compound` and `compound-refresh` are renamed, modified copies of the
+upstream `ce-compound` and `ce-compound-refresh` skills. Their source commit,
+copied directories, allowed patches, and manual-review update policy are recorded in
 [`vendor/compound-engineering.lock.json`](vendor/compound-engineering.lock.json).
 The upstream MIT notice is retained in
 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).

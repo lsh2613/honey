@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-The `skills/ce-compound` and `skills/ce-compound-refresh` directories are modified copies of skills from [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin), pinned at commit `c9e9d6292211256d3e9279b2abe54c6c1fcef08e`.
+The `skills/compound` and `skills/compound-refresh` directories are renamed, modified copies of the upstream `skills/ce-compound` and `skills/ce-compound-refresh` skills from [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin), pinned at commit `c9e9d6292211256d3e9279b2abe54c6c1fcef08e`.
 
 ## MIT License
 

@@ -1,8 +1,8 @@
 ## Forward-Test Prompts
 
-### Honey Plan
+### `plan`
 
-Use the Honey planning skill and run its local researcher before drafting the
+Use the `plan` skill and run its local researcher before drafting the
 plan. We need a requirements plan for a worker that keeps third-party account
 access active while several scheduled jobs may act on the same account.
 
@@ -19,9 +19,9 @@ Domains: code-implementation, workflow
 Return the researcher findings before the plan, then use them as constraints in
 the plan.
 
-### Honey Design
+### `design`
 
-Use the Honey design skill and run its local researcher before producing the
+Use the `design` skill and run its local researcher before producing the
 design. Design the coordination path for a service that renews an external
 access grant when many background jobs notice it is nearly expired.
 
@@ -38,9 +38,9 @@ Domains: agent-architecture, code-implementation
 Return the researcher findings before the design, then make the design reflect
 the relevant evidence.
 
-### Honey Work
+### `work`
 
-Use the Honey implementation skill and run its local researcher before making
+Use the `work` skill and run its local researcher before making
 changes. Improve the renewal path for a background processor where multiple
 queue deliveries for the same account can detect an expired access grant at
 once.

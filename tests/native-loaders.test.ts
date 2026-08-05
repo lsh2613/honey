@@ -7,6 +7,28 @@ const root = path.resolve(import.meta.dir, "..")
 const loaderFiles = [".opencode/plugins/honey.js", ".pi/extensions/honey.ts"]
 
 describe("native skill loaders", () => {
+  test("documents only the prefix-free public skill names", async () => {
+    const [readme, ...otherDocs] = await Promise.all([
+      "README.md",
+      "evals/stage-retrieval/README.md",
+      "tests/fixtures/stage-retrieval-forward-prompts.md",
+    ].map((relative) => readFile(path.join(root, relative), "utf8")))
+    const activeReadme = readme.split("\n## Vendored Provenance\n")[0]
+    const combined = [activeReadme, ...otherDocs].join("\n")
+
+    for (const skill of ["`plan`", "`design`", "`work`", "`compound`", "`compound-refresh`"]) {
+      expect(combined).toContain(skill)
+    }
+    for (const deprecated of [
+      "honey-plan",
+      "honey-design",
+      "honey-work",
+      "ce-compound",
+      "ce-compound-refresh",
+    ]) expect(combined).not.toContain(deprecated)
+    expect(readme).toContain("upstream `ce-compound` and `ce-compound-refresh`")
+  })
+
   test("documents native installation, development, provenance, and graceful degradation", async () => {
     const readme = await readFile(path.join(root, "README.md"), "utf8")
     const gitignore = await readFile(path.join(root, ".gitignore"), "utf8")
