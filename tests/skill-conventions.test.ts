@@ -12,6 +12,17 @@ const deprecatedSkills = [
   "honey-plan",
   "honey-work",
 ] as const
+const activeRuntimeMetadata = [
+  ".claude-plugin/plugin.json",
+  ".codex-plugin/plugin.json",
+  ".cursor-plugin/plugin.json",
+  ".kimi-plugin/plugin.json",
+  ".agy/plugin.json",
+  ".agents/plugins/marketplace.json",
+  ".opencode/plugins/honey.js",
+  ".pi/extensions/honey.ts",
+  "package.json",
+] as const
 const modelFilledSkillDir = "<absolute path of the directory containing the SKILL.md you just read>"
 const forbiddenSkillPathPatterns = [
   /(?:^|[\s`'(\"])\.\.\//m,
@@ -45,6 +56,18 @@ async function findSkillFiles(directory: string): Promise<string[]> {
   return nested.flat()
 }
 
+async function findRegularFiles(directory: string): Promise<string[]> {
+  const entries = await readdir(directory, { withFileTypes: true })
+  const nested = await Promise.all(
+    entries.map(async (entry) => {
+      const entryPath = path.join(directory, entry.name)
+      if (entry.isDirectory()) return findRegularFiles(entryPath)
+      return entry.isFile() ? [entryPath] : []
+    })
+  )
+  return nested.flat()
+}
+
 describe("Agent Skills contract", () => {
   test("installs exactly the prefix-free skill inventory", async () => {
     const skillsRoot = path.join(root, "skills")
@@ -57,6 +80,20 @@ describe("Agent Skills contract", () => {
       expect(parseFrontmatter(content).data.name).toBe(skill)
     }
     for (const skill of deprecatedSkills) expect(skillDirs).not.toContain(skill)
+  })
+
+  test("rejects deprecated identifiers from active runtime surfaces", async () => {
+    const runtimeFiles = [
+      ...(await findRegularFiles(path.join(root, "skills"))),
+      ...activeRuntimeMetadata.map((relative) => path.join(root, relative)),
+    ]
+
+    for (const filePath of runtimeFiles) {
+      const content = await readFile(filePath, "utf8")
+      for (const deprecated of deprecatedSkills) {
+        expect(content, `${path.relative(root, filePath)} contains ${deprecated}`).not.toContain(deprecated)
+      }
+    }
   })
 
   test("every skill has valid identifying frontmatter", async () => {
