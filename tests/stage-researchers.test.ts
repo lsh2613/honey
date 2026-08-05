@@ -4,12 +4,12 @@ import path from "node:path"
 import { parseFrontmatter } from "./helpers/frontmatter"
 
 const root = path.resolve(import.meta.dir, "..")
-const stages = ["honey-plan", "honey-design", "honey-work"] as const
+const stages = ["plan", "design", "work"] as const
 const researcherBodyStart = "## Step 0: Ground in CONCEPTS.md (if present)"
 
 function withoutInvocationContract(content: string): string {
   return content.replace(
-    /^## Honey (?:Plan|Design|Work) Invocation Contract\n[\s\S]*?(?=^## Step 0: Ground in CONCEPTS\.md \(if present\)$)/m,
+    /^## (?:Plan|Design|Work) Invocation Contract\n[\s\S]*?(?=^## Step 0: Ground in CONCEPTS\.md \(if present\)$)/m,
     "## Invocation Contract\n"
   )
 }
@@ -52,9 +52,9 @@ describe("stage-owned learnings researchers", () => {
 
   test("each stage dispatches, consumes findings, then produces its artifact", async () => {
     const outputMarkers = {
-      "honey-plan": "Produce the requirements plan",
-      "honey-design": "Produce the technical design",
-      "honey-work": "Implement and verify the approved work"
+      plan: "Produce the requirements plan",
+      design: "Produce the technical design",
+      work: "Implement and verify the approved work"
     }
     for (const stage of stages) {
       const skill = await readFile(path.join(root, "skills", stage, "SKILL.md"), "utf8")
@@ -101,7 +101,7 @@ describe("stage-owned learnings researchers", () => {
         "utf8"
       )
       expect(content).not.toContain("use_in")
-      expect(content).not.toContain("../honey-")
+      expect(content).not.toMatch(/\.\.\/[a-z0-9-]+/)
     }
   })
 

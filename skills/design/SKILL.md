@@ -1,5 +1,5 @@
 ---
-name: honey-design
+name: design
 description: Create a technical design with repository-grounded prior learnings.
 ---
 

@@ -46,21 +46,21 @@ function knowledgeProblemTypes(schemaText: string): unknown[] {
 describe("vendored Compound skills", () => {
   test("ship every load-bearing support file", async () => {
     const required = [
-      "skills/ce-compound/SKILL.md",
-      "skills/ce-compound/assets/resolution-template.md",
-      "skills/ce-compound/references/schema.yaml",
-      "skills/ce-compound/references/yaml-schema.md",
-      "skills/ce-compound/references/grounding-validation.md",
-      "skills/ce-compound/references/agents/repo-profiler.md",
-      "skills/ce-compound/scripts/repo-profile-cache.py",
-      "skills/ce-compound/scripts/validate-frontmatter.py",
-      "skills/ce-compound/scripts/validate-doc-claims.py",
-      "skills/ce-compound-refresh/SKILL.md",
-      "skills/ce-compound-refresh/assets/resolution-template.md",
-      "skills/ce-compound-refresh/references/per-action-flows.md",
-      "skills/ce-compound-refresh/references/schema.yaml",
-      "skills/ce-compound-refresh/scripts/validate-frontmatter.py",
-      "skills/ce-compound-refresh/scripts/validate-doc-claims.py"
+      "skills/compound/SKILL.md",
+      "skills/compound/assets/resolution-template.md",
+      "skills/compound/references/schema.yaml",
+      "skills/compound/references/yaml-schema.md",
+      "skills/compound/references/grounding-validation.md",
+      "skills/compound/references/agents/repo-profiler.md",
+      "skills/compound/scripts/repo-profile-cache.py",
+      "skills/compound/scripts/validate-frontmatter.py",
+      "skills/compound/scripts/validate-doc-claims.py",
+      "skills/compound-refresh/SKILL.md",
+      "skills/compound-refresh/assets/resolution-template.md",
+      "skills/compound-refresh/references/per-action-flows.md",
+      "skills/compound-refresh/references/schema.yaml",
+      "skills/compound-refresh/scripts/validate-frontmatter.py",
+      "skills/compound-refresh/scripts/validate-doc-claims.py"
     ]
     for (const file of required) expect(await exists(file), file).toBe(true)
   })
@@ -69,8 +69,10 @@ describe("vendored Compound skills", () => {
     const lock = JSON.parse(await readFile(path.join(root, "vendor/compound-engineering.lock.json"), "utf8"))
     expect(lock.repository).toBe("https://github.com/EveryInc/compound-engineering-plugin")
     expect(lock.commit).toBe("c9e9d6292211256d3e9279b2abe54c6c1fcef08e")
-    expect(lock.skills).toEqual(["ce-compound", "ce-compound-refresh"])
+    expect(lock.sourceDirectories).toEqual(["skills/ce-compound", "skills/ce-compound-refresh"])
+    expect(lock.skills).toEqual(["compound", "compound-refresh"])
     expect(lock.patches).toEqual([
+      "rename-vendored-skills-without-prefixes",
       "replace-claude-skill-dir-with-portable-skill-dir",
       "add-korean-compound-auto-invoke-examples"
     ])
@@ -79,7 +81,7 @@ describe("vendored Compound skills", () => {
   test("uses portable skill-directory commands across load-bearing Markdown", async () => {
     const markdownFiles = (
       await Promise.all(
-        ["ce-compound", "ce-compound-refresh"].map((skill) =>
+        ["compound", "compound-refresh"].map((skill) =>
           findMarkdownFiles(path.join(root, "skills", skill))
         )
       )
@@ -89,9 +91,9 @@ describe("vendored Compound skills", () => {
       expect(await readFile(file, "utf8"), path.relative(root, file)).not.toContain("${CLAUDE_SKILL_DIR}")
     }
 
-    const compound = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
+    const compound = await readFile(path.join(root, "skills/compound/SKILL.md"), "utf8")
     const refreshFlows = await readFile(
-      path.join(root, "skills/ce-compound-refresh/references/per-action-flows.md"),
+      path.join(root, "skills/compound-refresh/references/per-action-flows.md"),
       "utf8"
     )
     const portableAnchor = 'SKILL_DIR="<absolute path of the directory containing the SKILL.md you just read>"'
@@ -100,7 +102,7 @@ describe("vendored Compound skills", () => {
   })
 
   test("keeps English and Korean prompt-level auto-invoke examples", async () => {
-    const skill = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
+    const skill = await readFile(path.join(root, "skills/compound/SKILL.md"), "utf8")
     for (const phrase of [
       "that worked",
       "it's fixed",
@@ -118,11 +120,11 @@ describe("vendored Compound skills", () => {
   })
 
   test("preserves the settled solution-only knowledge model", async () => {
-    const compound = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
-    const compoundSchema = await readFile(path.join(root, "skills/ce-compound/references/schema.yaml"), "utf8")
-    const refresh = await readFile(path.join(root, "skills/ce-compound-refresh/SKILL.md"), "utf8")
+    const compound = await readFile(path.join(root, "skills/compound/SKILL.md"), "utf8")
+    const compoundSchema = await readFile(path.join(root, "skills/compound/references/schema.yaml"), "utf8")
+    const refresh = await readFile(path.join(root, "skills/compound-refresh/SKILL.md"), "utf8")
     const refreshSchema = await readFile(
-      path.join(root, "skills/ce-compound-refresh/references/schema.yaml"),
+      path.join(root, "skills/compound-refresh/references/schema.yaml"),
       "utf8"
     )
 
@@ -144,7 +146,7 @@ describe("vendored Compound skills", () => {
   })
 
   test("keeps docs enumeration fresh", async () => {
-    const compound = await readFile(path.join(root, "skills/ce-compound/SKILL.md"), "utf8")
+    const compound = await readFile(path.join(root, "skills/compound/SKILL.md"), "utf8")
     expect(compound).toContain("docs/solutions/` enumeration is NEVER cached")
   })
 })

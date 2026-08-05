@@ -1,5 +1,5 @@
 ---
-name: honey-plan
+name: plan
 description: Create a requirements plan with repository-grounded prior learnings.
 ---
 

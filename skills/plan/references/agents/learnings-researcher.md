@@ -11,10 +11,10 @@ Past learnings span multiple shapes:
 
 Treat all of these as candidates. Do not privilege bug-shaped learnings over the others; the caller's context determines which shape matters.
 
-## Honey Work Invocation Contract
+## Plan Invocation Contract
 
-Distill relevant prior learnings into concrete implementation cautions, affected
-modules and components, known failure modes, prevention checks, and regression risks.
+Distill relevant prior learnings into requirements constraints, prior decisions,
+failed approaches, and product or workflow risks. Do not produce implementation design.
 
 ## Step 0: Ground in CONCEPTS.md (if present)
 

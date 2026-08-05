@@ -4,6 +4,14 @@ import path from "node:path"
 import { parseFrontmatter } from "./helpers/frontmatter"
 
 const root = path.resolve(import.meta.dir, "..")
+const canonicalSkills = ["compound", "compound-refresh", "design", "plan", "work"] as const
+const deprecatedSkills = [
+  "ce-compound",
+  "ce-compound-refresh",
+  "honey-design",
+  "honey-plan",
+  "honey-work",
+] as const
 const modelFilledSkillDir = "<absolute path of the directory containing the SKILL.md you just read>"
 const forbiddenSkillPathPatterns = [
   /(?:^|[\s`'(\"])\.\.\//m,
@@ -38,6 +46,19 @@ async function findSkillFiles(directory: string): Promise<string[]> {
 }
 
 describe("Agent Skills contract", () => {
+  test("installs exactly the prefix-free skill inventory", async () => {
+    const skillsRoot = path.join(root, "skills")
+    const entries = await readdir(skillsRoot, { withFileTypes: true })
+    const skillDirs = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort()
+
+    expect(skillDirs).toEqual([...canonicalSkills])
+    for (const skill of canonicalSkills) {
+      const content = await readFile(path.join(skillsRoot, skill, "SKILL.md"), "utf8")
+      expect(parseFrontmatter(content).data.name).toBe(skill)
+    }
+    for (const skill of deprecatedSkills) expect(skillDirs).not.toContain(skill)
+  })
+
   test("every skill has valid identifying frontmatter", async () => {
     const skillsRoot = path.join(root, "skills")
     const entries = await readdir(skillsRoot, { withFileTypes: true })
@@ -63,21 +84,21 @@ describe("Agent Skills contract", () => {
   test("allows portable and model-filled skill paths while rejecting concrete installed paths", () => {
     const portableFixture = `\`\`\`bash
 SKILL_DIR="${modelFilledSkillDir}"
-mkdir -p /tmp/compound-engineering/ce-compound/run-1
+mkdir -p /tmp/compound-engineering/compound/run-1
 \`\`\``
     const concreteFixtures = [
-      "../ce-compound/SKILL.md",
-      "~/.claude/plugins/cache/compound/skills/ce-compound",
-      "~/.codex/plugins/cache/compound/skills/ce-compound",
-      "~/.cache/compound/skills/ce-compound",
-      "/Users/alice/.cache/compound/skills/ce-compound",
-      "/home/alice/.local/share/compound/skills/ce-compound",
-      "/opt/vendor/skills/ce-compound",
-      "/var/lib/vendor/skills/ce-compound",
-      "/usr/local/share/vendor/skills/ce-compound",
+      "../compound/SKILL.md",
+      "~/.claude/plugins/cache/compound/skills/compound",
+      "~/.codex/plugins/cache/compound/skills/compound",
+      "~/.cache/compound/skills/compound",
+      "/Users/alice/.cache/compound/skills/compound",
+      "/home/alice/.local/share/compound/skills/compound",
+      "/opt/vendor/skills/compound",
+      "/var/lib/vendor/skills/compound",
+      "/usr/local/share/vendor/skills/compound",
       `\`\`\`bash
 SKILL_DIR="${modelFilledSkillDir}"
-source "/opt/vendor/skills/ce-compound"
+source "/opt/vendor/skills/compound"
 \`\`\``
     ]
 

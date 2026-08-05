@@ -1,5 +1,5 @@
 ---
-name: ce-compound-refresh
+name: compound-refresh
 description: Refresh docs/solutions learnings against the current codebase. Use when auditing stale, overlapping, superseded, or drifted learnings; avoid general refactor, debugging, or code review unless docs/solutions is explicit.
 argument-hint: "[optional: scope hint — directory, filename, module, or keyword] [mode:headless] "
 ---
@@ -118,7 +118,7 @@ If no candidate docs are found, report:
 
 ```text
 No candidate docs found in docs/solutions/.
-Run `ce-compound` after solving problems to start building your knowledge base.
+Run `compound` after solving problems to start building your knowledge base.
 ```
 
 ## Phase 0: Assess and Route
@@ -182,8 +182,8 @@ Match investigation depth to the learning's specificity — a learning referenci
 
 The critical distinction is whether the drift is **cosmetic** (references moved but the solution is the same) or **substantive** (the solution itself changed):
 
-- **Update territory** — file paths moved, classes renamed, links broke, metadata drifted, but the core recommended approach is still how the code works. `ce-compound-refresh` fixes these directly.
-- **Replace territory** — the recommended solution conflicts with current code, the architectural approach changed, or the pattern is no longer the preferred way. This means a new learning needs to be written. A replacement subagent writes the successor following `ce-compound`'s document format (frontmatter, problem, root cause, solution, prevention), using the investigation evidence already gathered. The orchestrator does not rewrite learnings inline — it delegates to a subagent for context isolation.
+- **Update territory** — file paths moved, classes renamed, links broke, metadata drifted, but the core recommended approach is still how the code works. `compound-refresh` fixes these directly.
+- **Replace territory** — the recommended solution conflicts with current code, the architectural approach changed, or the pattern is no longer the preferred way. This means a new learning needs to be written. A replacement subagent writes the successor following `compound`'s document format (frontmatter, problem, root cause, solution, prevention), using the investigation evidence already gathered. The orchestrator does not rewrite learnings inline — it delegates to a subagent for context isolation.
 
 **The boundary:** if you find yourself rewriting the solution section or changing what the learning recommends, stop — that is Replace, not Update.
 
@@ -339,7 +339,7 @@ By the time you identify a Replace candidate, Phase 1 investigation has already 
 - **Insufficient evidence** — the drift is so fundamental that you cannot confidently document the current approach. The entire subsystem was replaced, or the new architecture is too complex to understand from a file scan alone. → Mark as stale in place:
    - Add `status: stale`, `stale_reason: [what you found]`, `stale_date: YYYY-MM-DD` to the frontmatter
    - Report what evidence you found and what is missing
-   - Recommend the user run `ce-compound` after their next encounter with that area, when they have fresh problem-solving context
+   - Recommend the user run `compound` after their next encounter with that area, when they have fresh problem-solving context
 
 ### Delete
 
@@ -510,10 +510,10 @@ After the per-learning actions execute, aggregate the domain terms flagged acros
 4. **Scope discipline and citation hygiene.** Bootstrap, seed, and reconcile reflect only the area in scope — do not expand to other categories, and do not retroactively inject `(see CONCEPTS.md)` pointers into existing learnings. (The repo-wide bootstrap path above is the deliberate exception — it intentionally covers the whole declared model.) The report should note that additional entries are likely from refresh runs on other scopes.
 5. **Initial structure.** When bootstrapping, start the file with this preamble under the `# Concepts` heading:
 
-   > Shared domain vocabulary for this project — entities, named processes, and status concepts with project-specific meaning. Seeded with core domain vocabulary, then accretes as ce-compound and ce-compound-refresh process learnings; direct edits are fine. Glossary only, not a spec or catch-all.
+   > Shared domain vocabulary for this project — entities, named processes, and status concepts with project-specific meaning. Seeded with core domain vocabulary, then accretes as compound and compound-refresh process learnings; direct edits are fine. Glossary only, not a spec or catch-all.
 
    Then add entries. Let term count drive shape: 1-4 terms → flat headings, more → cluster by domain relationship per the rules in `references/concepts-vocabulary.md`.
-6. **Scrub violations.** Scan existing entries for content that violates `references/concepts-vocabulary.md` criteria — implementation specifics (file paths, class names, function signatures, code references), current-config values (thresholds, counts, enum values that will drift), status/owner/date metadata, duplicates of terms covered under a different name, or entries that lean on an undefined project-specific sibling (add the sibling or rephrase). Rewrite or consolidate. The full sweep is appropriate here because refresh is an audit; ce-compound's same-named phase scopes corrections to the coherence neighborhood of entries being touched.
+6. **Scrub violations.** Scan existing entries for content that violates `references/concepts-vocabulary.md` criteria — implementation specifics (file paths, class names, function signatures, code references), current-config values (thresholds, counts, enum values that will drift), status/owner/date metadata, duplicates of terms covered under a different name, or entries that lean on an undefined project-specific sibling (add the sibling or rephrase). Rewrite or consolidate. The full sweep is appropriate here because refresh is an audit; compound's same-named phase scopes corrections to the coherence neighborhood of entries being touched.
 
 If no Phase 1 signals qualified after applying the reference's criteria, record that outcome explicitly in the report's `CONCEPTS.md` line (e.g., "scanned, no qualifying terms"). Do not silently skip — the visible scan-and-no-result record is the audit signal that the reference was consulted.
 
@@ -625,14 +625,14 @@ Write a descriptive commit message that:
 - Follows the repo's existing commit conventions (check recent git log for style)
 - Is succinct — the details are in the changed files themselves
 
-## Relationship to ce-compound
+## Relationship to compound
 
-- `ce-compound` captures a newly solved, verified problem
-- `ce-compound-refresh` maintains older learnings as the codebase evolves — both their individual accuracy and their collective design as a document set
+- `compound` captures a newly solved, verified problem
+- `compound-refresh` maintains older learnings as the codebase evolves — both their individual accuracy and their collective design as a document set
 
-Use **Replace** only when the refresh process has enough real evidence to write a trustworthy successor. When evidence is insufficient, mark as stale and recommend `ce-compound` for when the user next encounters that problem area.
+Use **Replace** only when the refresh process has enough real evidence to write a trustworthy successor. When evidence is insufficient, mark as stale and recommend `compound` for when the user next encounters that problem area.
 
-Use **Consolidate** proactively when the document set has grown organically and redundancy has crept in. Every `ce-compound` invocation adds a new doc — over time, multiple docs may cover the same problem from slightly different angles. Periodic consolidation keeps the document set lean and authoritative.
+Use **Consolidate** proactively when the document set has grown organically and redundancy has crept in. Every `compound` invocation adds a new doc — over time, multiple docs may cover the same problem from slightly different angles. Periodic consolidation keeps the document set lean and authoritative.
 
 ## Discoverability Check
 

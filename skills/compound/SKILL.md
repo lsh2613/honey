@@ -1,10 +1,10 @@
 ---
-name: ce-compound
+name: compound
 description: Document a recently solved problem or durable project vocabulary in docs/solutions/ or CONCEPTS.md. Use when capturing a learning after work.
 argument-hint: "[optional: brief context] [mode:headless] "
 ---
 
-# /ce-compound
+# /compound
 
 Coordinate multiple subagents working in parallel to document a recently solved problem.
 
@@ -17,17 +17,17 @@ Captures problem solutions while context is fresh, creating structured documenta
 ## Usage
 
 ```bash
-/ce-compound                            # Document the most recent fix
-/ce-compound [brief context]            # Provide additional context hint
-/ce-compound mode:headless              # Non-interactive run for automations
-/ce-compound mode:headless [context]    # Non-interactive run with context hint
+/compound                            # Document the most recent fix
+/compound [brief context]            # Provide additional context hint
+/compound mode:headless              # Non-interactive run for automations
+/compound mode:headless [context]    # Non-interactive run with context hint
 ```
 
 **One learning per run.** The workflow's grounding, overlap detection, and cross-referencing all assume a single solved problem. When a session produced multiple distinct learnings, run the skill once per learning, sequentially — each run grounds fresh against the tree. Do not batch several learnings through one run and stitch cross-references between the drafts afterward; drafting-context numbering ("Learning 3") leaking into written docs is the failure this rule prevents.
 
 ## CONCEPTS.md bootstrap requests
 
-If invoked specifically to create or bootstrap `CONCEPTS.md` from scratch rather than to document a solved problem, do not run the normal phases — `ce-compound` populates `CONCEPTS.md` only as a side effect of documenting a real learning (it seeds the *learning's area*, not the whole repo; see Phase 2.4). Repo-wide concept-map creation is `ce-compound-refresh`'s job. Redirect a standalone bootstrap request to `ce-compound-refresh` (which asks whether to build the concept map or run a refresh cycle), then exit.
+If invoked specifically to create or bootstrap `CONCEPTS.md` from scratch rather than to document a solved problem, do not run the normal phases — `compound` populates `CONCEPTS.md` only as a side effect of documenting a real learning (it seeds the *learning's area*, not the whole repo; see Phase 2.4). Repo-wide concept-map creation is `compound-refresh`'s job. Redirect a standalone bootstrap request to `compound-refresh` (which asks whether to build the concept map or run a refresh cycle), then exit.
 
 ## Mode Detection
 
@@ -102,7 +102,7 @@ If the user says yes, run the internal session-history step in Phase 1 (see step
 <critical_requirement>
 **The primary deliverable is ONE file - the final documentation.**
 
-Phase 1 subagents write their full structured output to a per-run scratch artifact under `/tmp/compound-engineering/ce-compound/<run-id>/` and return only a compact confirmation containing the artifact path. The orchestrator Reads those artifacts back in Phase 2 assembly. This is scratch space, identical in spirit to `ce-code-review`'s per-reviewer run artifacts; it does not make the scratch files additional deliverables. **Only the orchestrator writes product files** — the final solution doc and the maintenance side effects below. Subagents must not touch `docs/`, project instruction files, or any tracked path. Beyond the Phase 2 solution doc, the orchestrator's other writes are maintenance side effects — not additional deliverables, and creating one when absent is expected, not a violation of this rule:
+Phase 1 subagents write their full structured output to a per-run scratch artifact under `/tmp/compound-engineering/compound/<run-id>/` and return only a compact confirmation containing the artifact path. The orchestrator Reads those artifacts back in Phase 2 assembly. This is scratch space, identical in spirit to `ce-code-review`'s per-reviewer run artifacts; it does not make the scratch files additional deliverables. **Only the orchestrator writes product files** — the final solution doc and the maintenance side effects below. Subagents must not touch `docs/`, project instruction files, or any tracked path. Beyond the Phase 2 solution doc, the orchestrator's other writes are maintenance side effects — not additional deliverables, and creating one when absent is expected, not a violation of this rule:
 - **`CONCEPTS.md`** — create or update in Phase 2.4 (Vocabulary Capture) when a qualifying domain term surfaces.
 - **A project instruction file** (AGENTS.md or CLAUDE.md) — a small edit when the Discoverability Check finds a gap.
 
@@ -140,7 +140,7 @@ Launch research subagents. Each writes its full output to a per-run scratch arti
 
 ```bash
 RUN_ID=$(date +%Y%m%d-%H%M%S)-$(head -c4 /dev/urandom | od -An -tx1 | tr -d ' ')
-mkdir -p "/tmp/compound-engineering/ce-compound/$RUN_ID"
+mkdir -p "/tmp/compound-engineering/compound/$RUN_ID"
 ```
 
 **Resolve the agnostic project orientation from the shared cache (before dispatching subagents).** The question-agnostic orientation the Context Analyzer and Related Docs Finder rely on — the project's `CONCEPTS.md` vocabulary and the root instruction-file conventions/digests — is identical for every run at this commit, so reuse it instead of re-deriving. Set `SKILL_DIR` to this skill's directory and run the helper (full protocol in `references/repo-profile-cache.md`):
@@ -156,14 +156,14 @@ python3 "$SKILL_DIR/scripts/repo-profile-cache.py" get
 
 The cache is an optimization, never a correctness dependency — if the helper errors or returns nothing usable, fall back to deriving the orientation inline and continue. Pass the resolved vocabulary/conventions into the Context Analyzer (for vocabulary and instruction-file convention grounding) so it does not re-derive them.
 
-**CRITICAL — the `docs/solutions/` enumeration is NEVER cached; the Related Docs Finder must glob it FRESH every run.** `ce-compound` *writes* new learnings into `docs/solutions/`, so a cached index would miss a doc added moments ago (even an uncommitted one). The cached profile supplies only the agnostic orientation above; the `docs/solutions/` search in step 3 always runs against the live tree.
+**CRITICAL — the `docs/solutions/` enumeration is NEVER cached; the Related Docs Finder must glob it FRESH every run.** `compound` *writes* new learnings into `docs/solutions/`, so a cached index would miss a doc added moments ago (even an uncommitted one). The cached profile supplies only the agnostic orientation above; the `docs/solutions/` search in step 3 always runs against the live tree.
 
-Pass `{run_id}` (the resolved `$RUN_ID` value) into every Phase 1 subagent prompt. Each subagent **writes its full structured output** to its own file under `/tmp/compound-engineering/ce-compound/{run_id}/`, **confirms the write succeeded** (the file exists and is non-empty), and then **returns only a one-line confirmation containing the artifact path** — not the prose body inline. Artifact filenames by subagent:
+Pass `{run_id}` (the resolved `$RUN_ID` value) into every Phase 1 subagent prompt. Each subagent **writes its full structured output** to its own file under `/tmp/compound-engineering/compound/{run_id}/`, **confirms the write succeeded** (the file exists and is non-empty), and then **returns only a one-line confirmation containing the artifact path** — not the prose body inline. Artifact filenames by subagent:
 
-- **Context Analyzer** → `/tmp/compound-engineering/ce-compound/{run_id}/context.json` (frontmatter skeleton, category path, filename, track)
-- **Solution Extractor** → `/tmp/compound-engineering/ce-compound/{run_id}/solution.md` (the full doc-body prose sections)
-- **Related Docs Finder** → `/tmp/compound-engineering/ce-compound/{run_id}/related.json` (links, refresh candidates, overlap assessment)
-- **Session History** synthesis subagent (when run) → `/tmp/compound-engineering/ce-compound/{run_id}/session-history.md` (prose findings)
+- **Context Analyzer** → `/tmp/compound-engineering/compound/{run_id}/context.json` (frontmatter skeleton, category path, filename, track)
+- **Solution Extractor** → `/tmp/compound-engineering/compound/{run_id}/solution.md` (the full doc-body prose sections)
+- **Related Docs Finder** → `/tmp/compound-engineering/compound/{run_id}/related.json` (links, refresh candidates, overlap assessment)
+- **Session History** synthesis subagent (when run) → `/tmp/compound-engineering/compound/{run_id}/session-history.md` (prose findings)
 
 **Return the full output inline whenever the artifact write did not succeed.** This covers both cases where the orchestrator's Phase 2 inline fallback would otherwise have nothing to read: (a) `{run_id}` is empty or did not resolve (non-Claude-Code platforms where the pre-resolution failed), so there is no path to write to; and (b) `{run_id}` resolved but the write itself failed — tool permission denied, absolute-path writes unavailable, disk error, or the post-write existence check came back empty. In either case the subagent must return its complete structured output inline instead of a path, because the path would point at a file that does not exist. Return only the bare path when — and only when — the write is confirmed on disk. The artifact pattern is a reliability improvement, not a hard requirement; the orchestrator handles a missing artifact in Phase 2 by using the inline return.
 
@@ -286,7 +286,7 @@ Pass `{run_id}` (the resolved `$RUN_ID` value) into every Phase 1 subagent promp
 
    Pi sessions are included when present under `~/.pi/agent/sessions/`; they carry `cwd` like Codex but no git branch. If `_meta.files_processed` is `0`, return `no relevant prior sessions`. If the first pass finds no relevant branch matches, or if processing Codex or Pi sessions, derive 2-4 keywords from the topic and re-run metadata extraction with `--keyword K1,K2,...`. Keep at most 5 sessions across Claude Code, Codex, Cursor, and Pi, ranked by branch match, keyword match count, file size over 30KB, and recency. Exclude the current session.
 
-   **Extraction pipeline.** Create `SCRATCH=$(mktemp -d -t ce-compound-sessions-XXXXXX)`. For each selected session, write extracted content to scratch files:
+   **Extraction pipeline.** Create `SCRATCH=$(mktemp -d -t compound-sessions-XXXXXX)`. For each selected session, write extracted content to scratch files:
 
    ```bash
    SKILL_DIR="<absolute path of the directory containing the SKILL.md you just read>"
@@ -307,7 +307,7 @@ Pass `{run_id}` (the resolved `$RUN_ID` value) into every Phase 1 subagent promp
    - the output schema above
    - the filter rule above
 
-   The subagent reads only the scratch paths, **writes its prose findings to `/tmp/compound-engineering/ce-compound/{run_id}/session-history.md`, and returns only that artifact path once the write is confirmed** (same #956 reliability rationale — session-history findings are long-form prose prone to summary-collapse). If `{run_id}` did not resolve or the artifact write failed, it returns the prose inline instead (per the inline-fallback rule above). If synthesis fails, note the failure and continue without session context.
+   The subagent reads only the scratch paths, **writes its prose findings to `/tmp/compound-engineering/compound/{run_id}/session-history.md`, and returns only that artifact path once the write is confirmed** (same #956 reliability rationale — session-history findings are long-form prose prone to summary-collapse). If `{run_id}` did not resolve or the artifact write failed, it returns the prose inline instead (per the inline-fallback rule above). If synthesis fails, note the failure and continue without session context.
 
 ### Phase 2: Assembly & Write
 
@@ -317,7 +317,7 @@ Pass `{run_id}` (the resolved `$RUN_ID` value) into every Phase 1 subagent promp
 
 The orchestrating agent (main conversation) performs these steps:
 
-1. **Collect Phase 1 results from the run artifacts.** For each Phase 1 subagent, `Read` its artifact file under `/tmp/compound-engineering/ce-compound/{run_id}/` (`context.json`, `solution.md`, `related.json`, and `session-history.md` when session history ran). The artifact holds the subagent's full output. **Fall back to the subagent's inline return only when its artifact file is absent or empty** (e.g., `{run_id}` did not resolve, or the subagent failed to write). The artifact is authoritative when present — this is what makes the workflow resilient to the issue #956 summary-collapse, where the inline return is only an executive summary.
+1. **Collect Phase 1 results from the run artifacts.** For each Phase 1 subagent, `Read` its artifact file under `/tmp/compound-engineering/compound/{run_id}/` (`context.json`, `solution.md`, `related.json`, and `session-history.md` when session history ran). The artifact holds the subagent's full output. **Fall back to the subagent's inline return only when its artifact file is absent or empty** (e.g., `{run_id}` did not resolve, or the subagent failed to write). The artifact is authoritative when present — this is what makes the workflow resilient to the issue #956 summary-collapse, where the inline return is only an executive summary.
 2. **Check the overlap assessment** from the Related Docs Finder before deciding what to write:
 
    | Overlap | Action |
@@ -370,15 +370,15 @@ Then, applying those criteria, scan the new doc **and** the surrounding conversa
 
 **Verify behavior assertions against source before writing them.** When an entry asserts how code behaves (states, transitions, limits, semantics), Read the defining source at the current tree first — an entry drafted from a session-level summary is exactly how wrong semantics enter the glossary. Phase 2.45 re-checks these entries, but the cheap fix is to not write the error.
 
-**Seed the learning's area at creation — don't write a lone term.** When `CONCEPTS.md` does not yet exist, alongside the surfaced term also seed the core domain nouns of the area this learning touched, following the **Seed goal** and **Scope of a seed** rules in `references/concepts-vocabulary.md`. The seed is scoped to the learning's area (the modules and domain the fix touched) and defines only terms investigated here — it does not reach for repo-wide nouns. This anchors the surfaced term so it does not dangle against undefined siblings. A repo-wide concept map is `ce-compound-refresh`'s bootstrap path, not this one.
+**Seed the learning's area at creation — don't write a lone term.** When `CONCEPTS.md` does not yet exist, alongside the surfaced term also seed the core domain nouns of the area this learning touched, following the **Seed goal** and **Scope of a seed** rules in `references/concepts-vocabulary.md`. The seed is scoped to the learning's area (the modules and domain the fix touched) and defines only terms investigated here — it does not reach for repo-wide nouns. This anchors the surfaced term so it does not dangle against undefined siblings. A repo-wide concept map is `compound-refresh`'s bootstrap path, not this one.
 
 **At creation, hold the qualifying bar conservatively for borderline terms.** A borderline term, or a class/table/file name dressed up as an entity, defers to a later run — clear core nouns are seeded, borderline ones wait. The conservatism is about quality, not count; updates to an existing file follow the normal criteria.
 
 **When bootstrapping the file, start with this preamble under the `# Concepts` heading**, then add the qualifying entries below it:
 
-> Shared domain vocabulary for this project — entities, named processes, and status concepts with project-specific meaning. Seeded with core domain vocabulary, then accretes as ce-compound and ce-compound-refresh process learnings; direct edits are fine. Glossary only, not a spec or catch-all.
+> Shared domain vocabulary for this project — entities, named processes, and status concepts with project-specific meaning. Seeded with core domain vocabulary, then accretes as compound and compound-refresh process learnings; direct edits are fine. Glossary only, not a spec or catch-all.
 
-**Refresh the coherence neighborhood of any entry you touch.** When adding or editing an entry, also inspect its *coherence neighborhood* — its cluster siblings and the terms it cross-references or that reference it. Within that neighborhood, do two things: fix glossary violations (implementation specifics — file paths, class names, function signatures, current-config values), and refresh entries the learning's own evidence shows have drifted. Bounds: neighborhood only, never a full-file audit; refresh only on evidence already in hand; if judging a neighbor would require investigation this learning did not do, flag it for `ce-compound-refresh` rather than editing on a guess. The test: after the edit, would a reader find the touched entry's siblings or referenced terms inconsistent with it? Broader audit is `ce-compound-refresh`'s job.
+**Refresh the coherence neighborhood of any entry you touch.** When adding or editing an entry, also inspect its *coherence neighborhood* — its cluster siblings and the terms it cross-references or that reference it. Within that neighborhood, do two things: fix glossary violations (implementation specifics — file paths, class names, function signatures, current-config values), and refresh entries the learning's own evidence shows have drifted. Bounds: neighborhood only, never a full-file audit; refresh only on evidence already in hand; if judging a neighbor would require investigation this learning did not do, flag it for `compound-refresh` rather than editing on a guess. The test: after the edit, would a reader find the touched entry's siblings or referenced terms inconsistent with it? Broader audit is `compound-refresh`'s job.
 
 If no terms qualified after applying the reference's criteria, record that outcome explicitly in the success output (e.g., "Vocabulary capture: scanned, no qualifying terms"). Do not silently skip — the visible scan-and-no-result record is the audit signal that the reference was consulted.
 
@@ -403,9 +403,9 @@ The doc (and any `CONCEPTS.md` entries from Phase 2.4) is about to become perman
 
 After writing the new learning, decide whether this new solution is evidence that older docs should be refreshed.
 
-`ce-compound-refresh` is **not** a default follow-up. Use it selectively when the new learning suggests an older learning or pattern doc may now be inaccurate.
+`compound-refresh` is **not** a default follow-up. Use it selectively when the new learning suggests an older learning or pattern doc may now be inaccurate.
 
-It makes sense to invoke `ce-compound-refresh` when one or more of these are true:
+It makes sense to invoke `compound-refresh` when one or more of these are true:
 
 1. A related learning or pattern doc recommends an approach that the new fix now contradicts
 2. The new fix clearly supersedes an older documented solution
@@ -414,7 +414,7 @@ It makes sense to invoke `ce-compound-refresh` when one or more of these are tru
 5. The Related Docs Finder surfaced high-confidence refresh candidates in the same problem space
 6. The Related Docs Finder reported **moderate overlap** with an existing doc — there may be consolidation opportunities that benefit from a focused review
 
-It does **not** make sense to invoke `ce-compound-refresh` when:
+It does **not** make sense to invoke `compound-refresh` when:
 
 1. No related docs were found
 2. Related docs still appear consistent with the new learning
@@ -423,12 +423,12 @@ It does **not** make sense to invoke `ce-compound-refresh` when:
 
 Use these rules:
 
-- If there is **one obvious stale candidate**, invoke `ce-compound-refresh` with a narrow scope hint after the new learning is written
+- If there is **one obvious stale candidate**, invoke `compound-refresh` with a narrow scope hint after the new learning is written
 - If there are **multiple candidates in the same area**, ask the user whether to run a targeted refresh for that module, category, or pattern set
-- If context is already tight or you are in lightweight mode, do not expand into a broad refresh automatically; instead recommend `ce-compound-refresh` as the next step with a scope hint
-- **In headless mode**, never invoke `ce-compound-refresh` and never ask the user. Surface the recommended scope hint in the terminal report's "Refresh recommendation" line and let the caller decide
+- If context is already tight or you are in lightweight mode, do not expand into a broad refresh automatically; instead recommend `compound-refresh` as the next step with a scope hint
+- **In headless mode**, never invoke `compound-refresh` and never ask the user. Surface the recommended scope hint in the terminal report's "Refresh recommendation" line and let the caller decide
 
-When invoking or recommending `ce-compound-refresh`, be explicit about the argument to pass. Prefer the narrowest useful scope:
+When invoking or recommending `compound-refresh`, be explicit about the argument to pass. Prefer the narrowest useful scope:
 
 - **Specific file** when one learning or pattern doc is the likely stale artifact
 - **Module or component name** when several related docs may need review
@@ -437,14 +437,14 @@ When invoking or recommending `ce-compound-refresh`, be explicit about the argum
 
 Examples:
 
-- `/ce-compound-refresh plugin-versioning-requirements`
-- `/ce-compound-refresh payments`
-- `/ce-compound-refresh performance-issues`
-- `/ce-compound-refresh critical-patterns`
+- `/compound-refresh plugin-versioning-requirements`
+- `/compound-refresh payments`
+- `/compound-refresh performance-issues`
+- `/compound-refresh critical-patterns`
 
 A single scope hint may still expand to multiple related docs when the change is cross-cutting within one domain, category, or pattern area.
 
-Do not invoke `ce-compound-refresh` without an argument unless the user explicitly wants a broad sweep.
+Do not invoke `compound-refresh` without an argument unless the user explicitly wants a broad sweep.
 
 Always capture the new learning first. Refresh is a targeted maintenance follow-up, not a prerequisite for documentation.
 
@@ -504,7 +504,7 @@ Based on problem type, optionally dispatch generic subagents seeded with local p
 - **security_issue** → `references/agents/security-sentinel.md`
 - **database_issue** → `references/agents/data-integrity-guardian.md`
 - Any code-heavy issue → preserve code simplification as a **read-only documentation review**. Inspect the solution draft's code examples and explanatory claims inline, or dispatch a generic subagent seeded with a local prompt only to return suggestions. Do **not** invoke `ce-simplify-code` from this phase and do not mutate product code unless the user explicitly asks for a separate code-simplification pass. Do not use the deleted `code-simplicity-reviewer`.
-  Example: review the solution draft's examples for speculative abstractions, redundant wrappers, dead branches, and just-in-case parameters. Apply edits only to the documentation/examples being written by `ce-compound`; leave any branch code changes untouched.
+  Example: review the solution draft's examples for speculative abstractions, redundant wrappers, dead branches, and just-in-case parameters. Apply edits only to the documentation/examples being written by `compound`; leave any branch code changes untouched.
 
 </parallel_tasks>
 
@@ -549,12 +549,12 @@ a one-line mention helps agents find the shared vocabulary.
 
 Note: This was created in lightweight mode. For richer documentation
 (cross-references, detailed prevention strategies, specialized reviews,
-semantic grounding validation), re-run /ce-compound in a fresh session.
+semantic grounding validation), re-run /compound in a fresh session.
 ```
 
 **No subagents are launched. No parallel tasks. The solution doc is the one deliverable** (Phase 2.4's update-only vocabulary capture may also refine an existing `CONCEPTS.md`).
 
-In lightweight mode, the overlap check is skipped (no Related Docs Finder subagent). This means lightweight mode may create a doc that overlaps with an existing one. That is acceptable — `ce-compound-refresh` will catch it later. Only suggest `ce-compound-refresh` if there is an obvious narrow refresh target. Do not broaden into a large refresh sweep from a lightweight session.
+In lightweight mode, the overlap check is skipped (no Related Docs Finder subagent). This means lightweight mode may create a doc that overlaps with an existing one. That is acceptable — `compound-refresh` will catch it later. Only suggest `compound-refresh` if there is an obvious narrow refresh target. Do not broaden into a large refresh sweep from a lightweight session.
 
 ---
 
@@ -614,7 +614,7 @@ Knowledge track:
 
 | ❌ Wrong | ✅ Correct |
 |----------|-----------|
-| Subagents write product files into `docs/` or edit tracked paths | Subagents write only scratch artifacts under `/tmp/compound-engineering/ce-compound/<run-id>/` and return the path; orchestrator writes the one final doc |
+| Subagents write product files into `docs/` or edit tracked paths | Subagents write only scratch artifacts under `/tmp/compound-engineering/compound/<run-id>/` and return the path; orchestrator writes the one final doc |
 | Subagent returns a long prose body only as its inline response | Subagent writes full output to its run artifact; orchestrator Reads it back (inline return is fallback only) |
 | Research and assembly run in parallel | Research completes → then assembly runs |
 | Multiple files created during workflow | One solution doc written or updated: `docs/solutions/[category]/[filename].md` (plus optional maintenance writes: a `CONCEPTS.md` create/update from Phase 2.4 and a small instruction-file edit for discoverability) |
@@ -638,7 +638,7 @@ Overlap: <none | low | moderate — see <path> | high — existing doc updated>
 Grounding: <clean | N flags adjudicated (X fixed, Y annotated, Z confirmed) | N claims softened or corrected | degraded — merge-state claims unverified offline>
 Instruction-file edit: <none needed | applied to <path> | gap noted, not applied>
 CONCEPTS.md: <scanned, no qualifying terms | created with N entries (M seeded from the learning's area) | updated — N added, N refined>
-Refresh recommendation: <none | scope hint for /ce-compound-refresh>
+Refresh recommendation: <none | scope hint for /compound-refresh>
 
 Documentation complete
 ```
@@ -728,7 +728,7 @@ Build → Test → Find Issue → Research → Improve → Document → Validate
 
 <auto_invoke> <trigger_phrases> - "that worked" - "it's fixed" - "working now" - "problem solved" - "잘 됐어" - "이제 잘 돼" - "고쳐졌어" - "수정됐어" - "해결됐어" - "문제 해결됐어" - "정상 동작해" </trigger_phrases>
 
-<manual_override> Use /ce-compound [context] to document immediately without waiting for auto-detection. </manual_override> </auto_invoke>
+<manual_override> Use /compound [context] to document immediately without waiting for auto-detection. </manual_override> </auto_invoke>
 
 ## Output
 
@@ -753,7 +753,7 @@ Based on problem type, these local prompt assets can enhance documentation:
 
 ### When to Invoke
 - **Auto-triggered** (optional): Generic subagents seeded with local prompts can run post-documentation for enhancement
-- **Manual trigger**: User can run surviving skills such as `ce-simplify-code` after `/ce-compound` completes for deeper code review and mutation
+- **Manual trigger**: User can run surviving skills such as `ce-simplify-code` after `/compound` completes for deeper code review and mutation
 
 ## Related Commands
 

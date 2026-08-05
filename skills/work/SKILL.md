@@ -1,5 +1,5 @@
 ---
-name: honey-work
+name: work
 description: Implement approved work with repository-grounded prior learnings.
 ---
 

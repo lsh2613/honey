@@ -11,10 +11,10 @@ Past learnings span multiple shapes:
 
 Treat all of these as candidates. Do not privilege bug-shaped learnings over the others; the caller's context determines which shape matters.
 
-## Honey Plan Invocation Contract
+## Design Invocation Contract
 
-Distill relevant prior learnings into requirements constraints, prior decisions,
-failed approaches, and product or workflow risks. Do not produce implementation design.
+Distill relevant prior learnings into architecture constraints, patterns to follow,
+tooling decisions, conventions, and rejected technical approaches.
 
 ## Step 0: Ground in CONCEPTS.md (if present)
 
